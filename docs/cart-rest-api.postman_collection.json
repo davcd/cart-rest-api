@@ -1,0 +1,377 @@
+{
+	"info": {
+		"_postman_id": "702c166b-a027-4a22-850b-cc128ba5a57b",
+		"name": "cart-rest-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "cart",
+			"item": [
+				{
+					"name": "create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "706e7c53-0cfa-4841-8bae-534f512bd442",
+								"exec": [
+									"tests['Status Code is 201'] = (responseCode.code === 201);",
+									" ",
+									"if (responseCode.code === 201) {",
+									"    try {",
+									"        var body = JSON.parse(responseBody);",
+									"    }",
+									"    catch(e) {",
+									"        console.log(e);",
+									"    }",
+									"    postman.setGlobalVariable(\"cart_code\", body.cart_code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}:{{port}}/cart/",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cart",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{url}}:{{port}}/cart/?cart_code={{cart_code}}",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cart",
+								""
+							],
+							"query": [
+								{
+									"key": "cart_code",
+									"value": "{{cart_code}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/cart/?cart_code={{cart_code}}",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cart",
+								""
+							],
+							"query": [
+								{
+									"key": "cart_code",
+									"value": "{{cart_code}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "67e27077-142f-4159-ad4d-fa8589fd5d86",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "9629e96a-7593-4448-b157-da8415bd2ccf",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "items",
+			"item": [
+				{
+					"name": "create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "4538eb59-a1a2-43e4-9fb6-a812677ef89f",
+								"exec": [
+									"tests['Status Code is 201'] = (responseCode.code === 201);",
+									" ",
+									"if (responseCode.code === 201) {",
+									"    try {",
+									"        var body = JSON.parse(responseBody);",
+									"    }",
+									"    catch(e) {",
+									"        console.log(e);",
+									"    }",
+									"    postman.setGlobalVariable(\"item_code\", body.item_code);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}:{{port}}/item/",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"item",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}:{{port}}/item/?item_code={{item_code}}",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"item",
+								""
+							],
+							"query": [
+								{
+									"key": "item_code",
+									"value": "{{item_code}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "f0e3dd57-d491-4e1c-9c2e-f2fe0679f049",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "1cff9632-0fb1-45ba-8ab2-5c1ade0d51b9",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "cart.items",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}:{{port}}/cart/items/?cart_code={{cart_code}}",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cart",
+								"items",
+								""
+							],
+							"query": [
+								{
+									"key": "cart_code",
+									"value": "{{cart_code}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}:{{port}}/cart/items?cart_code={{cart_code}}&item_code={{item_code}}&quantity=2",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cart",
+								"items"
+							],
+							"query": [
+								{
+									"key": "cart_code",
+									"value": "{{cart_code}}"
+								},
+								{
+									"key": "item_code",
+									"value": "{{item_code}}"
+								},
+								{
+									"key": "quantity",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "remove",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}:{{port}}/cart/items?cart_code={{cart_code}}&item_code={{item_code}}&quantity=1",
+							"host": [
+								"{{url}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"cart",
+								"items"
+							],
+							"query": [
+								{
+									"key": "cart_code",
+									"value": "{{cart_code}}"
+								},
+								{
+									"key": "item_code",
+									"value": "{{item_code}}"
+								},
+								{
+									"key": "quantity",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "bba3a37e-7e73-4016-8883-700b3d70bf61",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4c929d10-7c20-4b42-a9bc-ccdb7576ccf0",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -1,0 +1,41 @@
+version: '3.5'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3600:3600'
+    networks:
+      - backend
+    environment:
+      WAIT_HOSTS: mongo:27017
+      WAIT_HOSTS_TIMEOUT: 120
+      WAIT_BEFORE_HOSTS: 5
+      WAIT_SLEEP_INTERVAL: 2
+  mongo:
+    image: mongo:latest
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./db/data:/data/db
+      - ./db/scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+    ports:
+      - '27017:27017'
+    networks:
+      - backend
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    networks:
+      - backend
+    environment:
+      WAIT_HOSTS: mongo:27017
+      WAIT_HOSTS_TIMEOUT: 120
+      WAIT_BEFORE_HOSTS: 10
+      WAIT_SLEEP_INTERVAL: 6
+networks:
+  backend:
+    driver: bridge
