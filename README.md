@@ -6,10 +6,10 @@ This is my personal Cart REST API repository, built with [Node.js](https://nodej
 
 - [Getting started](#getting-started)
 - [Architecture](#architecture)
+- [API endpoints](#api-endpoints)
 - [Features](#features)
   - [Considerations](#considerations)
   - [Limitations](#features)
-- [API endpoints](#api-endpoints)
 - [Next steps](#next-steps)
 
 ## Getting started
@@ -69,22 +69,6 @@ When choosen the stack, I contemplated the option of using these others:
 </details>
 
 <p align="center"><img src="docs/architecture.png" width="80%"/></p>
-
-## Features
-
-- Cart ( _create / get / remove_ )
-- Item ( _create / get_ )
-- List of cart items ( _get_ )
-- Modify cart item ( modify )
-
-### Considerations
-
-- Web/Mobile Application must handle the `cart_code` (session, cookie, or persistence if loged in user)
-
-### Limitations
-
-- The is no stock limit for any item.
-- For a reald-world cart there must be more considerations than `quantity` (e.g. sizes, colors, discounts) and thus API should handle them.
 
 ## API endpoints
 
@@ -213,7 +197,7 @@ No responses
 
 <details><summary markdown="span"><i>POST</i>  <strong>/item/</strong></summary>
 
-Creates a new item
+Creates a new random item
 
 **Parameters**
 
@@ -355,20 +339,20 @@ Retrieves list of items in cart
 </details>
 <details><summary markdown="span"><i>POST</i>  <strong>/cart/items/</strong></summary>
 
-Modifies cart item
+Adds / modifies / removes a cart item
 
 ```
 if (quantity is positive){
 	if(item previously exists in the cart){
-    	The quantities are added
+    	Modifies the quantities by adding them
     }else{
     	Adds the item into the cart with the defined quantity
     }
 }else{
 	if(item previously exists in the cart){
-		The quantities are subtracted
+		Modifies the quantities by subtracting them
         if(the quantities result is zero or less){
-        	Deletes item from cart
+        	Removes item from cart
         }
 	}else{
     	Does nothing
@@ -445,6 +429,25 @@ if (quantity is positive){
 | 400  | Incorrect parameters |
 
 </details>
+
+## Features
+
+- Cart ( _create / get / remove_ )
+- Item ( _create / get_ )
+- Retrieves cart items ( _get_ )
+- Adds / modifies / removes cart item ( _modify_ )
+
+### Considerations
+
+- Web/Mobile Application must handle the `cart_code` (session, cookie, or persistence if loged in user)
+
+### Limitations
+
+- The is no stock limit for any item.
+- For a reald-world cart there must be more considerations than `quantity` (e.g. sizes, colors, discounts) and thus API should handle them.
+- For a real-world app, there is no need of creating empty carts. Carts should be created when user adds an item and not before. For this reason call two endpoints ( _POST_ **/cart/** and _POST_ **/cart/items/** ) for perform this operation is not the best approach.
+
+> Note: This can be handle by allowing to call _POST_ **/cart/items/** without a `cart_code` and create it automatically.
 
 ## Next steps
 
