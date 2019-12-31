@@ -6,10 +6,10 @@ This is my personal Cart REST API repository, built with [Node.js](https://nodej
 
 - [Getting started](#getting-started)
 - [Architecture](#architecture)
-- [API endpoints](#api-endpoints)
 - [Features](#features)
   - [Considerations](#considerations)
   - [Limitations](#features)
+- [API endpoints](#api-endpoints)
 - [Next steps](#next-steps)
 
 ## Getting started
@@ -69,6 +69,22 @@ When choosen the stack, I contemplated the option of using these others:
 </details>
 
 <p align="center"><img src="docs/architecture.png" width="80%"/></p>
+
+## Features
+
+- Cart ( _create / get / remove_ )
+- Item ( _create / get_ )
+- List of cart items ( _get_ )
+- Modify cart item ( modify )
+
+### Considerations
+
+- Web/Mobile Application must handle the `cart_code` (session, cookie, or persistence if loged in user)
+
+### Limitations
+
+- The is no stock limit for any item.
+- For a reald-world cart there must be more considerations than `quantity` (e.g. sizes, colors, discounts) and thus API should handle them.
 
 ## API endpoints
 
@@ -264,7 +280,7 @@ Retrieves an item
 
 </details>
 
-#### cart.item
+#### cart.items
 
 <details><summary markdown="span"><i>GET</i>  <strong>/cart/items/</strong></summary>
 
@@ -429,22 +445,6 @@ if (quantity is positive){
 | 400  | Incorrect parameters |
 
 </details>
-
-## Features
-
-- Cart ( _create / get / remove_ )
-- Item ( _create / get_ )
-- List of cart items ( _get_ )
-- Modify cart item ( modify )
-
-### Considerations
-
-- Web/Mobile Application must handle the `cart_code` (session, cookie, or persistence if loged in user)
-
-### Limitations
-
-- The is no stock limit for any item.
-- For a reald-world cart there must be more considerations than `quantity` (e.g. sizes, colors, discounts) and thus API should handle them.
 
 ## Next steps
 
