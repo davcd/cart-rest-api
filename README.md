@@ -7,6 +7,7 @@ This is my personal Cart REST API repository, built with [Node.js](https://nodej
 - [Getting Started](#getting-started)
 - [Architecture](#architecture)
 - [API endpoints](#api-endpoints)
+- [Features](#features) - [Considerations](#considerations) - [Limitations](#features)
 
 ## Getting Started
 
@@ -56,6 +57,7 @@ The cons are:
 
 </details>
 <details><summary markdown="span">Initial ideas</summary>
+
 When choosen the stack, I contemplated the option of using these others:
 
 - Java: Spring Boot based with Postgres database and Hibernate as ORM.
@@ -71,7 +73,7 @@ For simplicity, every data passed to a endpoint will be allocated as params.
 
 #### cart
 
-<details><summary markdown="span">_POST_  __/cart/__</summary>
+<details><summary markdown="span"><i>POST</i> <strong>/cart/</strong></summary>
 
 Creates a new cart
 
@@ -98,7 +100,7 @@ No parameters
 | 201  | Successful operation |
 
 </details>
-<details><summary markdown="span">GET  __/cart/__</summary>
+<details><summary markdown="span"><i>GET</i>  <strong>/cart/</strong></summary>
 
 Retrieves a cart
 
@@ -167,7 +169,7 @@ Retrieves a cart
 | 400  | Incorrect parameters |
 
 </details>
-<details><summary markdown="span">DELETE  __/cart/__</summary>
+<details><summary markdown="span"><i>DELETE</i>  <strong>/cart/</strong></summary>
 
 Removes a cart
 
@@ -190,7 +192,7 @@ No responses
 
 #### item
 
-<details><summary markdown="span">POST  __/item/__</summary>
+<details><summary markdown="span"><i>POST</i>  <strong>/item/</strong></summary>
 
 Creates a new item
 
@@ -217,7 +219,7 @@ No parameters
 | 201  | Successful operation |
 
 </details>
-<details><summary markdown="span">GET  __/item/__</summary>
+<details><summary markdown="span"><i>GET</i>  <strong>/item/</strong></summary>
 
 Retrieves an item
 
@@ -261,7 +263,7 @@ Retrieves an item
 
 #### cart.item
 
-<details><summary markdown="span">GET  __/cart/items/__</summary>
+<details><summary markdown="span"><i>GET</i>  <strong>/cart/items/</strong></summary>
 
 Retrieves list of items in cart
 
@@ -332,7 +334,7 @@ Retrieves list of items in cart
 | 400  | Incorrect parameters |
 
 </details>
-<details><summary markdown="span">POST  __/cart/items/__</summary>
+<details><summary markdown="span"><i>POST</i>  <strong>/cart/items/</strong></summary>
 
 Add item to cart
 
@@ -407,7 +409,7 @@ If the item already exists in the cart, the quantities are added.
 | 400  | Incorrect parameters |
 
 </details>
-<details><summary markdown="span">DELETE  __/cart/items/__</summary>
+<details><summary markdown="span"><i>DELETE</i>  <strong>/cart/items/</strong></summary>
 
 Remove item from cart
 
@@ -486,3 +488,26 @@ If the item is not previously added to the cart, does nothing.
 | 400  | Incorrect parameters |
 
 </details>
+
+## Features
+
+- Cart ( _create / get / remove_ )
+- Item ( _create / get_ )
+- List of cart items ( _get_ )
+- Add item to cart ( _add_ )
+- Remove item from cart ( _remove_ )
+
+### Considerations
+
+- Web/Mobile Application must handle the `cart_code` (session, cookie, or persistence if loged in user)
+
+### Limitations
+
+- The is no stock limit for any item.
+- For a reald-world cart there must be more considerations than `quantity` (e.g. sizes, colors, discounts) and thus API should handle them.
+
+## Next steps
+
+- End to end testing ( _Swagger_ or _[newman](https://github.com/postmanlabs/newman)_ )
+- Tests code refactor
+- Adapt to cloud serverless architecture
