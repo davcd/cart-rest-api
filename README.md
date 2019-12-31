@@ -2,14 +2,17 @@
 
 This is my personal Cart REST API repository, built with [Node.js](https://nodejs.org/), [Express.js](https://expressjs.com/), [MongoDB](https://www.mongodb.com/) and [Docker](https://www.docker.com/).
 
-## Table of Contents
+## Table of contents
 
-- [Getting Started](#getting-started)
+- [Getting started](#getting-started)
 - [Architecture](#architecture)
 - [API endpoints](#api-endpoints)
-- [Features](#features) - [Considerations](#considerations) - [Limitations](#features)
+- [Features](#features)
+  - [Considerations](#considerations)
+  - [Limitations](#features)
+- [Next steps](#next-steps)
 
-## Getting Started
+## Getting started
 
 1. Clone this git repository:
 
