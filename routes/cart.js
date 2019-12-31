@@ -11,12 +11,6 @@ exports.routesConfig = app => {
     CartController.validateCart,
     ItemController.validateItem,
     CartController.validateCartItemMeta,
-    CartController.addCartItem
-  ])
-  app.delete('/cart/items', [
-    CartController.validateCart,
-    ItemController.validateItem,
-    CartController.validateCartItemMeta,
-    CartController.removeCartItem
+    CartController.modifyCartItem
   ])
 }

@@ -282,7 +282,7 @@
 					"response": []
 				},
 				{
-					"name": "add",
+					"name": "modify",
 					"request": {
 						"method": "POST",
 						"header": [],
@@ -308,39 +308,6 @@
 								{
 									"key": "quantity",
 									"value": "2"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "remove",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{url}}:{{port}}/cart/items?cart_code={{cart_code}}&item_code={{item_code}}&quantity=1",
-							"host": [
-								"{{url}}"
-							],
-							"port": "{{port}}",
-							"path": [
-								"cart",
-								"items"
-							],
-							"query": [
-								{
-									"key": "cart_code",
-									"value": "{{cart_code}}"
-								},
-								{
-									"key": "item_code",
-									"value": "{{item_code}}"
-								},
-								{
-									"key": "quantity",
-									"value": "1"
 								}
 							]
 						}

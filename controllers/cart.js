@@ -76,12 +76,12 @@ async function modifyCartItem(req, res) {
         await CartModel.updateCartItem(req.cart_id, req.item_id, { quantity: newQuantity }).then(result => {
           res.status(201).send(ParserUtils.cleanResult(result.items))
         })
+      } else {
+        await CartModel.removeCartItem(req.cart_id, req.item_id).then(result => {
+          res.status(201).send(ParserUtils.cleanResult(result.items))
+        })
       }
-      await CartModel.removeCartItem(req.cart_id, req.item_id).then(result => {
-        res.status(201).send(ParserUtils.cleanResult(result.items))
-      })
-    }
-    if (req.query.quantity > 0) {
+    } else if (req.query.quantity > 0) {
       await CartModel.addCartItem(req.cart_id, req.item_id, { quantity: req.query.quantity }).then(result => {
         res.status(201).send(ParserUtils.cleanResult(result.items))
       })
@@ -91,15 +91,6 @@ async function modifyCartItem(req, res) {
   })
 }
 
-async function addCartItem(req, res) {
-  await modifyCartItem(req, res)
-}
-
-async function removeCartItem(req, res) {
-  req.query.quantity = -req.query.quantity
-  await modifyCartItem(req, res)
-}
-
 module.exports = {
   validateCart,
   createCart,
@@ -107,8 +98,7 @@ module.exports = {
   removeCart,
   validateCartItemMeta,
   getCartItems,
-  addCartItem,
-  removeCartItem,
+  modifyCartItem,
 
   getCartIdByCode
 }

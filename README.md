@@ -339,88 +339,26 @@ Retrieves list of items in cart
 </details>
 <details><summary markdown="span"><i>POST</i>  <strong>/cart/items/</strong></summary>
 
-Add item to cart
-
-If the item already exists in the cart, the quantities are added.
-
-**Parameters**
-
-| Name      | Value  |
-| --------- | ------ |
-| cart_code | String |
-| item_code | String |
-| quantity  | Number |
-
-**Responses**
-
-```javascript
-[
-    {
-        "meta": {
-            "quantity": Number,
-        },
-        "item": {
-            "item_code": String,
-            "date": Date,
-            "name": String,
-            "description": String,
-            "image": String,
-            "price": Number
-        }
-    }
-]
-
-
-//Examples
-
-[]
-
-[
-    {
-        "meta": {
-            "quantity": 2
-        },
-        "item": {
-            "item_code": "290bcb1b-de37-40ed-a7ea-bcab78a84f7c",
-            "date": "2019-12-31T00:23:04.607Z",
-            "name": "deserunt enim laboris",
-            "description": "Est fugiat laborum eu mollit quis id.",
-            "image": "aute.jpg",
-            "price": 412.52
-        }
-    },
-    {
-        "meta": {
-            "quantity": 2
-        },
-        "item": {
-            "item_code": "e2791720-2e01-4fc6-b6bb-5d381742474e",
-            "date": "2019-12-31T00:31:47.452Z",
-            "name": "fugiat amet elit",
-            "description": "Cupidatat et minim in exercitation proident ea quis reprehenderit nisi.",
-            "image": "enim.jpg",
-            "price": 728.94
-        }
-    }
-]
+Modifies cart item
 
 ```
-
-| Code | Description          |
-| ---- | -------------------- |
-| 201  | Successful operation |
-| 400  | Incorrect parameters |
-
-</details>
-<details><summary markdown="span"><i>DELETE</i>  <strong>/cart/items/</strong></summary>
-
-Remove item from cart
-
-If the item already exists in the cart, the quantities are subtracted.
-
-If the removed quantity is equals or greather than de existing one, the item will be delete.
-
-If the item is not previously added to the cart, does nothing.
+if (quantity is positive){
+	if(item previously exists in the cart){
+    	The quantities are added
+    }else{
+    	Adds the item into the cart with the defined quantity
+    }
+}else{
+	if(item previously exists in the cart){
+		The quantities are subtracted
+        if(the quantities result is zero or less){
+        	Deletes item from cart
+        }
+	}else{
+    	Does nothing
+    }
+}
+```
 
 **Parameters**
 
@@ -497,8 +435,7 @@ If the item is not previously added to the cart, does nothing.
 - Cart ( _create / get / remove_ )
 - Item ( _create / get_ )
 - List of cart items ( _get_ )
-- Add item to cart ( _add_ )
-- Remove item from cart ( _remove_ )
+- Modify cart item ( modify )
 
 ### Considerations
 
