@@ -120,12 +120,12 @@ Retrieves a cart
     "cart_code": String,
     "date": Date,
     "items": [
-		{
-        	"meta": {
-              	"quantity": Number,
+        {
+            "meta": {
+                "quantity": Number,
             },
-			"item": {
-				"item_code": String,
+            "item": {
+                "item_code": String,
                 "date": Date,
                 "name": String,
                 "description": String,
@@ -139,7 +139,7 @@ Retrieves a cart
 //Examples
 
 {
-	"cart_code": "7cf76646-8403-4d3c-976d-df148e6be29e",
+    "cart_code": "7cf76646-8403-4d3c-976d-df148e6be29e",
     "date": "2019-12-31T00:14:02.213Z",
     "items": []
 }
@@ -207,7 +207,7 @@ No parameters
 
 ```javascript
 {
-	"item_code": String
+    "item_code": String
 }
 
 //Example
@@ -236,7 +236,7 @@ Retrieves an item
 
 ```javascript
 {
-	"item_code": String,
+    "item_code": String,
     "date": Date,
     "name": String,
     "description": String,
@@ -343,19 +343,19 @@ Adds / modifies / removes a cart item
 
 ```
 if (quantity is positive){
-	if(item previously exists in the cart){
-    	Modifies the quantities by adding them
+    if(item previously exists in the cart){
+        Modifies the quantities by adding them
     }else{
-    	Adds the item into the cart with the defined quantity
+        Adds the item into the cart with the defined quantity
     }
 }else{
-	if(item previously exists in the cart){
-		Modifies the quantities by subtracting them
+    if(item previously exists in the cart){
+        Modifies the quantities by subtracting them
         if(the quantities result is zero or less){
-        	Removes item from cart
+            Removes item from cart
         }
-	}else{
-    	Does nothing
+    }else{
+        Does nothing
     }
 }
 ```
