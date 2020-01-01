@@ -1,6 +1,6 @@
 const uuidv4 = require('uuid/v4')
 
-const { mongoose } = require('../services/mongoose.js')
+const mongoose = require('mongoose')
 
 const { Schema } = mongoose
 
@@ -44,28 +44,33 @@ function removeCartById(id) {
   return Cart.deleteOne({ _id: id })
 }
 
-async function addCartItem(cart_id, item_id, meta) {
-  await Cart.updateOne({ _id: cart_id, 'items.item': { $ne: item_id } }, { $push: { items: { item: item_id, meta } } })
-  return getCartById(cart_id)
+function addCartItem(cart_id, item_id, meta) {
+  return Cart.updateOne({ _id: cart_id, 'items.item': { $ne: item_id } }, { $push: { items: { item: item_id, meta } } }).then(() => {
+    return getCartById(cart_id)
+  })
 }
 
-async function updateCartItem(cart_id, item_id, meta) {
-  await Cart.updateOne({ _id: cart_id, 'items.item': item_id }, { $set: { 'items.$.meta': meta } })
-  return getCartById(cart_id)
+function updateCartItem(cart_id, item_id, meta) {
+  return Cart.updateOne({ _id: cart_id, 'items.item': item_id }, { $set: { 'items.$.meta': meta } }).then(() => {
+    return getCartById(cart_id)
+  })
 }
 
-async function removeCartItem(cart_id, item_id) {
-  await Cart.updateOne({ _id: cart_id, 'items.item': item_id }, { $pull: { items: { item: item_id } } })
-  return getCartById(cart_id)
+function removeCartItem(cart_id, item_id) {
+  return Cart.updateOne({ _id: cart_id, 'items.item': item_id }, { $pull: { items: { item: item_id } } }).then(() => {
+    return getCartById(cart_id)
+  })
 }
 
 module.exports = {
   Cart,
-  existsCartByCode,
+
   createCart,
+  existsCartByCode,
   getCartByCode,
   getCartById,
   removeCartById,
+
   addCartItem,
   updateCartItem,
   removeCartItem

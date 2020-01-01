@@ -11,12 +11,13 @@ const options = {
   useUnifiedTopology: true
 }
 
-const connect = () => {
-  mongoose.connect(`mongodb://mongo:27017/${process.env.MONGO_INITDB_DATABASE}`, options).catch(err => {
+function connect() {
+  mongoose.connect(`mongodb://localhost:27017/${process.env.MONGO_INITDB_DATABASE}`, options).catch(err => {
     console.log('MongoDB connection unsuccessful, retry after 5 seconds.', err) // eslint no ++
   })
 }
 
-connect()
-
-exports.mongoose = mongoose
+module.exports = {
+  mongoose,
+  connect
+}

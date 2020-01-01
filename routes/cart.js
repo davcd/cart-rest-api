@@ -1,7 +1,7 @@
 const CartController = require('../controllers/cart')
 const ItemController = require('../controllers/item')
 
-exports.routesConfig = app => {
+function routesConfig(app) {
   app.post('/cart/', [CartController.createCart])
   app.get('/cart/', [CartController.validateCart, CartController.getCart])
   app.delete('/cart/', [CartController.validateCart, CartController.removeCart])
@@ -14,3 +14,5 @@ exports.routesConfig = app => {
     CartController.modifyCartItem
   ])
 }
+
+module.exports = { routesConfig }

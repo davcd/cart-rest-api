@@ -1,5 +1,7 @@
 const uuidv4 = require('uuid/v4')
 
+const mongoose = require('../services/mongoose')
+
 const CartModel = require('../models/cart')
 const ItemModel = require('../models/item')
 
@@ -14,9 +16,14 @@ const reqMock = () => {
 
 const nextMock = () => jest.fn()
 
-afterEach(async () => {
+beforeAll(() => {
+  mongoose.connect()
+})
+
+afterAll(async () => {
   await CartModel.Cart.deleteMany()
   await ItemModel.Item.deleteMany()
+  mongoose.mongoose.disconnect()
 })
 
 async function generateCartWithItem(quantity) {
@@ -27,34 +34,6 @@ async function generateCartWithItem(quantity) {
 
   return { cart, item }
 }
-
-test('Validate existing cart', async () => {
-  const cart = await CartModel.createCart()
-
-  const req = {
-    query: { cart_code: cart.cart_code }
-  }
-  const res = reqMock()
-  const next = nextMock()
-
-  await CartController.validateCart(req, res, next)
-  expect(res.status).not.toHaveBeenCalled()
-  expect(res.send).not.toHaveBeenCalled()
-  expect(next).toHaveBeenCalled()
-})
-
-test('Validate non existing cart', async () => {
-  const req = {
-    query: { cart_code: uuidv4() }
-  }
-  const res = reqMock()
-  const next = nextMock()
-
-  await CartController.validateCart(req, res, next)
-  expect(res.status).toHaveBeenCalledWith(400)
-  expect(res.send).toHaveBeenCalledWith()
-  expect(next).not.toHaveBeenCalled()
-})
 
 test('Create cart', async () => {
   const req = {}
@@ -69,34 +48,66 @@ test('Create cart', async () => {
   )
 })
 
-test('Get cart', async () => {
-  const cart = await CartModel.createCart()
+describe('Validate cart', () => {
+  test('Existing cart', async () => {
+    const cart = await CartModel.createCart()
 
-  const req = {
-    cart_id: cart._id
-  }
-  const res = reqMock()
+    const req = {
+      query: { cart_code: cart.cart_code }
+    }
+    const res = reqMock()
+    const next = nextMock()
 
-  await CartController.getCart(req, res)
-  expect(res.status).toHaveBeenCalledWith(200)
-  expect(res.send).toHaveBeenCalledWith(
-    expect.objectContaining({
-      cart_code: expect.any(String),
-      date: expect.any(Date),
-      items: expect.any(Array)
-    })
-  )
+    await CartController.validateCart(req, res, next)
+    expect(res.status).not.toHaveBeenCalled()
+    expect(res.send).not.toHaveBeenCalled()
+    expect(next).toHaveBeenCalled()
+  })
+
+  test('Non existing cart', async () => {
+    const req = {
+      query: { cart_code: uuidv4() }
+    }
+    const res = reqMock()
+    const next = nextMock()
+
+    await CartController.validateCart(req, res, next)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.send).toHaveBeenCalledWith()
+    expect(next).not.toHaveBeenCalled()
+  })
 })
 
-test('Get cart_id by code', async () => {
-  const cart = await CartModel.createCart()
-  const res = await CartController.getCartIdByCode(cart.cart_code)
-  expect(res).toBe(cart._id.toJSON())
-})
+describe('Get cart', () => {
+  test('Existing cart', async () => {
+    const cart = await CartModel.createCart()
 
-test('Get cart_id by wrong code', async () => {
-  const res = await CartController.getCartIdByCode(uuidv4())
-  expect(res).toBe(null)
+    const req = {
+      cart_id: cart._id
+    }
+    const res = reqMock()
+
+    await CartController.getCart(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cart_code: expect.any(String),
+        date: expect.any(Date),
+        items: expect.any(Array)
+      })
+    )
+  })
+
+  test('Non existing cart', async () => {
+    const req = {
+      cart_id: uuidv4()
+    }
+    const res = reqMock()
+
+    await CartController.getCart(req, res)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.send).toHaveBeenCalledWith()
+  })
 })
 
 test('Remove cart', async () => {
@@ -112,154 +123,160 @@ test('Remove cart', async () => {
   expect(res.send).toHaveBeenCalledWith()
 })
 
-test('Get empty cart items', async () => {
-  const cart = await CartModel.createCart()
+describe('Get cart items', () => {
+  test('Empty cart', async () => {
+    const cart = await CartModel.createCart()
 
-  const req = {
-    cart_id: cart._id
-  }
-  const res = reqMock()
+    const req = {
+      cart_id: cart._id
+    }
+    const res = reqMock()
 
-  await CartController.getCartItems(req, res)
-  expect(res.status).toHaveBeenCalledWith(200)
-  expect(res.send).toHaveBeenCalled()
-  expect(res.send.mock.calls[0][0]).toStrictEqual([])
+    await CartController.getCartItems(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.send).toHaveBeenCalled()
+    expect(res.send.mock.calls[0][0]).toStrictEqual([])
+  })
+
+  test('Non empty cart', async () => {
+    const oQuantity = Math.ceil(Math.random() * 10) + 20
+    const { cart, item } = await generateCartWithItem(oQuantity)
+
+    const req = {
+      cart_id: cart._id
+    }
+    const res = reqMock()
+
+    await CartController.getCartItems(req, res)
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.send).toHaveBeenCalledTimes(1)
+    expect(res.status.mock.calls[0][0]).toBe(200)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], oQuantity)
+  })
 })
 
-test('Get non empty cart items', async () => {
-  const oQuantity = Math.ceil(Math.random() * 10) + 20
-  const { cart, item } = await generateCartWithItem(oQuantity)
+describe('Validate cart item meta', () => {
+  test('Valid meta', async () => {
+    const req = {
+      query: { quantity: Math.ceil(Math.random() * 10) }
+    }
+    const res = reqMock()
+    const next = nextMock()
 
-  const req = {
-    cart_id: cart._id
-  }
-  const res = reqMock()
+    await CartController.validateCartItemMeta(req, res, next)
+    expect(res.status).not.toHaveBeenCalled()
+    expect(res.send).not.toHaveBeenCalled()
+    expect(next).toHaveBeenCalled()
+  })
 
-  await CartController.getCartItems(req, res)
-  expect(res.status).toHaveBeenCalledTimes(1)
-  expect(res.send).toHaveBeenCalledTimes(1)
-  expect(res.status.mock.calls[0][0]).toBe(200)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], oQuantity)
+  test('Non valid meta', async () => {
+    const req = {
+      query: { quantity: uuidv4() }
+    }
+    const res = reqMock()
+    const next = nextMock()
+
+    await CartController.validateCartItemMeta(req, res, next)
+    expect(res.status).toHaveBeenCalledWith(400)
+    expect(res.send).toHaveBeenCalledWith()
+    expect(next).not.toHaveBeenCalled()
+  })
 })
 
-test('Validate valid cart item meta', async () => {
-  const req = {
-    query: { quantity: Math.ceil(Math.random() * 10) }
-  }
-  const res = reqMock()
-  const next = nextMock()
+describe('Modify cart items', () => {
+  test('Add non existing cart item', async () => {
+    const cart = await CartModel.createCart()
+    const item = await ItemModel.createItem()
 
-  await CartController.validateCartItemMeta(req, res, next)
-  expect(res.status).not.toHaveBeenCalled()
-  expect(res.send).not.toHaveBeenCalled()
-  expect(next).toHaveBeenCalled()
-})
+    const req = {
+      cart_id: cart._id,
+      item_id: item._id,
+      query: { quantity: Math.ceil(Math.random() * 10) }
+    }
+    const res = reqMock()
+    await CartController.modifyCartItem(req, res)
+    expect(res.status).toHaveBeenCalledWith(201)
+    expect(res.send).toHaveBeenCalled()
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], req.query.quantity)
+  })
 
-test('Validate non valid cart item meta', async () => {
-  const req = {
-    query: { quantity: uuidv4() }
-  }
-  const res = reqMock()
-  const next = nextMock()
+  test('Add non existing cart item with negative quantity', async () => {
+    const cart = await CartModel.createCart()
+    const item = await ItemModel.createItem()
 
-  await CartController.validateCartItemMeta(req, res, next)
-  expect(res.status).toHaveBeenCalledWith(400)
-  expect(res.send).toHaveBeenCalledWith()
-  expect(next).not.toHaveBeenCalled()
-})
+    const req = {
+      cart_id: cart._id,
+      item_id: item._id,
+      query: { quantity: -Math.ceil(Math.random() * 10) }
+    }
+    const res = reqMock()
+    await CartController.modifyCartItem(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.send).toHaveBeenCalled()
+    expect(res.send.mock.calls[0][0]).toStrictEqual([])
+  })
 
-test('Add new item to cart', async () => {
-  const cart = await CartModel.createCart()
-  const item = await ItemModel.createItem()
+  test.skip('Add existing cart item with positive quantity', async () => {
+    const oQuantity = Math.ceil(Math.random() * 10)
+    const mQuantity = Math.ceil(Math.random() * 10)
+    const { cart, item } = await generateCartWithItem(oQuantity)
 
-  const req = {
-    cart_id: cart._id,
-    item_id: item._id,
-    query: { quantity: Math.ceil(Math.random() * 10) }
-  }
-  const res = reqMock()
-  await CartController.modifyCartItem(req, res)
-  expect(res.status).toHaveBeenCalledWith(201)
-  expect(res.send).toHaveBeenCalled()
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], req.query.quantity)
-})
+    const req = {
+      cart_id: cart._id,
+      item_id: item._id,
+      query: { quantity: mQuantity }
+    }
+    const res = reqMock()
 
-test('Add new item to cart negative amount', async () => {
-  const cart = await CartModel.createCart()
-  const item = await ItemModel.createItem()
+    await CartController.modifyCartItem(req, res)
 
-  const req = {
-    cart_id: cart._id,
-    item_id: item._id,
-    query: { quantity: -Math.ceil(Math.random() * 10) }
-  }
-  const res = reqMock()
-  await CartController.modifyCartItem(req, res)
-  expect(res.status).toHaveBeenCalledWith(200)
-  expect(res.send).toHaveBeenCalled()
-  expect(res.send.mock.calls[0][0]).toStrictEqual([])
-})
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.send).toHaveBeenCalledTimes(1)
+    expect(res.status.mock.calls[0][0]).toBe(201)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], oQuantity + mQuantity)
+  })
 
-test.skip('Add existing item quantity to cart', async () => {
-  const oQuantity = Math.ceil(Math.random() * 10)
-  const mQuantity = Math.ceil(Math.random() * 10)
-  const { cart, item } = await generateCartWithItem(oQuantity)
+  test.skip('Add existing cart item with negative quantity', async () => {
+    const oQuantity = Math.ceil(Math.random() * 10) + 20
+    const mQuantity = Math.ceil(Math.random() * 10)
+    const { cart, item } = await generateCartWithItem(oQuantity)
 
-  const req = {
-    cart_id: cart._id,
-    item_id: item._id,
-    query: { quantity: mQuantity }
-  }
-  const res = reqMock()
+    const req = {
+      cart_id: cart._id,
+      item_id: item._id,
+      query: { quantity: -mQuantity }
+    }
+    const res = reqMock()
 
-  await CartController.modifyCartItem(req, res)
+    await CartController.modifyCartItem(req, res)
 
-  expect(res.status).toHaveBeenCalledTimes(1)
-  expect(res.send).toHaveBeenCalledTimes(1)
-  expect(res.status.mock.calls[0][0]).toBe(201)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], oQuantity + mQuantity)
-})
-
-test.skip('Subtract existing item quantity to cart', async () => {
-  const oQuantity = Math.ceil(Math.random() * 10) + 20
-  const mQuantity = Math.ceil(Math.random() * 10)
-  const { cart, item } = await generateCartWithItem(oQuantity)
-
-  const req = {
-    cart_id: cart._id,
-    item_id: item._id,
-    query: { quantity: -mQuantity }
-  }
-  const res = reqMock()
-
-  await CartController.modifyCartItem(req, res)
-
-  expect(res.status).toHaveBeenCalledTimes(1)
-  expect(res.send).toHaveBeenCalledTimes(1)
-  expect(res.status.mock.calls[0][0]).toBe(201)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
-  expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], oQuantity - mQuantity)
+    expect(res.status).toHaveBeenCalledTimes(1)
+    expect(res.send).toHaveBeenCalledTimes(1)
+    expect(res.status.mock.calls[0][0]).toBe(201)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'date'], item.date)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'description'], item.description)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'image'], item.image)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'item_code'], item.item_code)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'name'], item.name)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['item', 'price'], item.price)
+    expect(res.send.mock.calls[0][0][0]).toHaveProperty(['meta', 'quantity'], oQuantity - mQuantity)
+  })
 })

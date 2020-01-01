@@ -1,6 +1,6 @@
 const uuidv4 = require('uuid/v4')
 const { LoremIpsum } = require('lorem-ipsum')
-const { mongoose } = require('../services/mongoose')
+const mongoose = require('mongoose')
 
 const { Schema } = mongoose
 
@@ -37,6 +37,7 @@ function getItemById(id) {
 
 module.exports = {
   Item,
+
   createItem,
   existsItemByCode,
   getItemByCode,
