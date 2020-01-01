@@ -5,7 +5,7 @@ const GenericUtils = require('../utils/generic')
 function validateCart(req, res, next) {
   return CartModel.getCartByCode(req.query.cart_code)
     .then(cart => {
-      req.cart_id = cart.cart_id
+      req.cart_id = cart._id
       next()
     })
     .catch(() => {
@@ -34,7 +34,7 @@ function getCart(req, res) {
 }
 
 function removeCart(req, res) {
-  return CartModel.getCartById(req.cart_id)
+  return CartModel.removeCartById(req.cart_id)
     .then(() => {
       res.status(204).send()
     })
@@ -66,7 +66,7 @@ function getCartItems(req, res) {
 function checkCartItemPosition(array, item_id) {
   let pos = null
   for (let i = 0; i < array.length; i += 1) {
-    if (array[i].item._id.toJSON() === item_id) {
+    if (array[i].item._id.equals(item_id)) {
       pos = i
     }
   }

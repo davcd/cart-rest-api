@@ -4,7 +4,7 @@ const ParserUtils = require('../utils/parser')
 function validateItem(req, res, next) {
   return ItemModel.getItemByCode(req.query.item_code)
     .then(item => {
-      req.item_id = item.item_id
+      req.item_id = item._id
       next()
     })
     .catch(() => {
