@@ -17,7 +17,7 @@ This is my personal Cart REST API repository, built with [Node.js](https://nodej
 1. Clone this git repository:
 
 ```bash
-git clone https://github.com/davcd/cart-rest-api
+git clone https://github.com/davcd/cart-rest-api.git
 cd cart-rest-api
 ```
 
