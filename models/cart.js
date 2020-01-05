@@ -64,10 +64,7 @@ function removeCartByCode(cart_code) {
 }
 
 function addCartItem(cart_code, item_code, meta) {
-  return Cart.updateOne(
-    { cart_code, 'items.item.item_code': { $ne: item_code } },
-    { $push: { items: { item: { item_code }, meta } } }
-  ).then(() => {
+  return Cart.updateOne({ cart_code, 'items.item.item_code': { $ne: item_code } }, { $push: { items: { item: { item_code }, meta } } }).then(() => {
     return getCartByCode(cart_code)
   })
 }
