@@ -10,9 +10,11 @@ const cartSchema = new Schema(
     date: { type: Date, default: Date.now, required: false },
     items: [
       {
-        item: { type: Schema.Types.ObjectId, ref: 'Item', required: true },
+        item: {
+          item_code: { type: String, required: true }
+        },
         meta: {
-          quantity: { type: Number, required: true }
+          quantity: { type: Number }
           // Discounts, sizes, and other stuff
         }
       }
@@ -20,6 +22,13 @@ const cartSchema = new Schema(
   },
   { versionKey: false }
 )
+
+cartSchema.virtual('items.item.data', {
+  ref: 'Item',
+  localField: 'items.item.item_code',
+  foreignField: 'item_code',
+  justOne: true
+})
 
 const Cart = mongoose.model('Cart', cartSchema)
 
@@ -33,32 +42,45 @@ function existsCartByCode(cart_code) {
 }
 
 function getCartByCode(cart_code) {
-  return Cart.findOne({ cart_code })
+  return Cart.findOne({ cart_code }, '-_id -items._id')
+    .populate('items.item.data', '-_id')
+    .lean()
+    .then(result => {
+      result.items.forEach(res => {
+        const item = res
+        if (item.item.data !== undefined && item.item.data !== null) {
+          item.item = item.item.data
+        } else {
+          delete item.item.data
+        }
+        return item
+      })
+      return result
+    })
 }
 
-function getCartById(id) {
-  return Cart.findById(id).populate('items.item')
+function removeCartByCode(cart_code) {
+  return Cart.deleteOne({ cart_code })
 }
 
-function removeCartById(id) {
-  return Cart.deleteOne({ _id: id })
-}
-
-function addCartItem(cart_id, item_id, meta) {
-  return Cart.updateOne({ _id: cart_id, 'items.item': { $ne: item_id } }, { $push: { items: { item: item_id, meta } } }).then(() => {
-    return getCartById(cart_id)
+function addCartItem(cart_code, item_code, meta) {
+  return Cart.updateOne(
+    { cart_code, 'items.item.item_code': { $ne: item_code } },
+    { $push: { items: { item: { item_code }, meta } } }
+  ).then(() => {
+    return getCartByCode(cart_code)
   })
 }
 
-function updateCartItem(cart_id, item_id, meta) {
-  return Cart.updateOne({ _id: cart_id, 'items.item': item_id }, { $set: { 'items.$.meta': meta } }).then(() => {
-    return getCartById(cart_id)
+function updateCartItem(cart_code, item_code, meta) {
+  return Cart.updateOne({ cart_code, 'items.item.item_code': item_code }, { $set: { 'items.$.meta': meta } }).then(() => {
+    return getCartByCode(cart_code)
   })
 }
 
-function removeCartItem(cart_id, item_id) {
-  return Cart.updateOne({ _id: cart_id, 'items.item': item_id }, { $pull: { items: { item: item_id } } }).then(() => {
-    return getCartById(cart_id)
+function removeCartItem(cart_code, item_code) {
+  return Cart.updateOne({ cart_code, 'items.item.item_code': item_code }, { $pull: { items: { item: { item_code } } } }).then(() => {
+    return getCartByCode(cart_code)
   })
 }
 
@@ -68,8 +90,7 @@ module.exports = {
   createCart,
   existsCartByCode,
   getCartByCode,
-  getCartById,
-  removeCartById,
+  removeCartByCode,
 
   addCartItem,
   updateCartItem,

@@ -1,45 +1,52 @@
+const validate = require('uuid-validate')
+
 const CartModel = require('../models/cart')
-const ParserUtils = require('../utils/parser')
 const GenericUtils = require('../utils/generic')
 
-function validateCart(req, res, next) {
-  return CartModel.getCartByCode(req.query.cart_code)
-    .then(cart => {
-      req.cart_id = cart._id
-      next()
-    })
-    .catch(() => {
-      res.status(400).send()
-    })
+function validateCartCode(req, res, next) {
+  if (validate(req.query.cart_code)) {
+    CartModel.existsCartByCode(req.query.cart_code)
+      .then(cart => {
+        if (cart === false) {
+          throw new Error()
+        }
+        next()
+      })
+      .catch(() => {
+        res.status(404).send({ error: 'Cart not found' })
+      })
+  } else {
+    res.status(400).send({ error: 'Incorrect cart_code' })
+  }
 }
 
 function createCart(req, res) {
-  return CartModel.createCart()
+  CartModel.createCart()
     .then(result => {
       res.status(201).send({ cart_code: result.cart_code })
     })
     .catch(() => {
-      res.status(400).send()
+      res.status(400).send({ error: 'Error creating cart' })
     })
 }
 
 function getCart(req, res) {
-  return CartModel.getCartById(req.cart_id)
+  CartModel.getCartByCode(req.query.cart_code)
     .then(result => {
-      res.status(200).send(ParserUtils.cleanResult(result))
+      res.status(200).send(result)
     })
     .catch(() => {
-      res.status(400).send()
+      res.status(400).send({ error: 'Error retrieving cart' })
     })
 }
 
 function removeCart(req, res) {
-  return CartModel.removeCartById(req.cart_id)
+  CartModel.removeCartByCode(req.query.cart_code)
     .then(() => {
       res.status(204).send()
     })
     .catch(() => {
-      res.status(400).send()
+      res.status(400).send({ error: 'Error deleting cart' })
     })
 }
 
@@ -47,26 +54,27 @@ function validateCartItemMeta(req, res, next) {
   const cart = new CartModel.Cart({ items: [{ meta: { quantity: req.query.quantity } }] })
   const error = cart.validateSync()
   if (!GenericUtils.checkAnyStringOfArrayContains(Object.keys(error.errors), 'items.0.meta')) {
+    res.locals.quantity = parseInt(req.query.quantity, 10) || 1
     next()
   } else {
-    res.status(400).send()
+    res.status(400).send('Incorrect meta')
   }
 }
 
 function getCartItems(req, res) {
-  return CartModel.getCartById(req.cart_id)
+  CartModel.getCartByCode(req.query.cart_code)
     .then(result => {
-      res.status(200).send(ParserUtils.cleanResult(result.items))
+      res.status(200).send(result.items)
     })
     .catch(() => {
-      res.status(400).send()
+      res.status(400).send({ error: 'Error retrieving cart items' })
     })
 }
 
-function checkCartItemPosition(array, item_id) {
+function checkCartItemPosition(array, item_code) {
   let pos = null
   for (let i = 0; i < array.length; i += 1) {
-    if (array[i].item._id.equals(item_id)) {
+    if (array[i].item.item_code === item_code) {
       pos = i
     }
   }
@@ -74,31 +82,35 @@ function checkCartItemPosition(array, item_id) {
 }
 
 function modifyCartItem(req, res) {
-  return CartModel.getCartById(req.cart_id).then(cart => {
-    const pos = checkCartItemPosition(cart.items, req.item_id)
-    if (pos !== null) {
-      const newQuantity = parseInt(req.query.quantity, 10) + cart.items[pos].meta.quantity
-
-      if (newQuantity > 0) {
-        return CartModel.updateCartItem(req.cart_id, req.item_id, { quantity: newQuantity }).then(result => {
-          res.status(201).send(ParserUtils.cleanResult(result.items))
+  CartModel.getCartByCode(req.query.cart_code)
+    // eslint-disable-next-line consistent-return
+    .then(cart => {
+      const pos = checkCartItemPosition(cart.items, req.query.item_code)
+      if (pos !== null) {
+        const newQuantity = res.locals.quantity + cart.items[pos].meta.quantity
+        if (newQuantity > 0) {
+          return CartModel.updateCartItem(req.query.cart_code, req.query.item_code, { quantity: newQuantity }).then(result => {
+            res.status(201).send(result.items)
+          })
+        }
+        return CartModel.removeCartItem(req.query.cart_code, req.query.item_code).then(result => {
+          res.status(201).send(result.items)
         })
       }
-      return CartModel.removeCartItem(req.cart_id, req.item_id).then(result => {
-        res.status(201).send(ParserUtils.cleanResult(result.items))
-      })
-    }
-    if (req.query.quantity > 0) {
-      return CartModel.addCartItem(req.cart_id, req.item_id, { quantity: req.query.quantity }).then(result => {
-        res.status(201).send(ParserUtils.cleanResult(result.items))
-      })
-    }
-    return res.status(200).send(ParserUtils.cleanResult(cart.items))
-  })
+      if (req.query.quantity > 0) {
+        return CartModel.addCartItem(req.query.cart_code, req.query.item_code, { quantity: req.query.quantity }).then(result => {
+          res.status(201).send(result.items)
+        })
+      }
+      res.status(200).send(cart.items)
+    })
+    .catch(() => {
+      res.status(400).send({ error: 'Error retrieving cart' })
+    })
 }
 
 module.exports = {
-  validateCart,
+  validateCartCode,
   createCart,
   getCart,
   removeCart,

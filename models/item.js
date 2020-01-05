@@ -28,11 +28,7 @@ function existsItemByCode(item_code) {
 }
 
 function getItemByCode(item_code) {
-  return Item.findOne({ item_code })
-}
-
-function getItemById(id) {
-  return Item.findById(id)
+  return Item.findOne({ item_code }, '-_id').lean()
 }
 
 module.exports = {
@@ -40,6 +36,5 @@ module.exports = {
 
   createItem,
   existsItemByCode,
-  getItemByCode,
-  getItemById
+  getItemByCode
 }
