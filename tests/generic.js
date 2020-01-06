@@ -48,7 +48,7 @@ async function modelFunctionParameterErrorExpect(fun, result) {
   }
 }
 
-async function controllerFunctionParametersError(request, resMock, fun, is_validate) {
+async function controllerFunctionParametersError(request, resMock, fun, error, is_validate) {
   const cases = [uuidv4(), new LoremIpsum().generateWords(1), null, undefined, '']
 
   const req = { query: {} }
@@ -64,7 +64,7 @@ async function controllerFunctionParametersError(request, resMock, fun, is_valid
     if (is_validate && validate(req.query[request])) {
       expect(res.status).toHaveBeenCalledWith(404)
     } else {
-      expect(res.status).toHaveBeenCalledWith(400)
+      expect(res.status).toHaveBeenCalledWith(error)
     }
     expect(res.send).toHaveBeenCalledTimes(1)
     expect(res.send).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }))

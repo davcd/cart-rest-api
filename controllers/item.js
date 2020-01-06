@@ -25,7 +25,7 @@ async function createItem(req, res) {
     }
     res.status(201).send({ item_code: item.item_code })
   } catch (e) {
-    res.status(400).send({ error: 'Error creating item' })
+    res.status(500).send({ error: 'Error creating item' })
   }
 }
 
@@ -37,7 +37,7 @@ async function getItem(req, res) {
     }
     res.status(200).send(item)
   } catch (e) {
-    res.status(400).send({ error: 'Error retrieving item' })
+    res.status(500).send({ error: 'Error retrieving item' })
   }
 }
 

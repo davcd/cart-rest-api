@@ -26,7 +26,7 @@ async function createCart(req, res) {
     }
     res.status(201).send({ cart_code: cart.cart_code })
   } catch (e) {
-    res.status(400).send({ error: 'Error creating cart' })
+    res.status(500).send({ error: 'Error creating cart' })
   }
 }
 
@@ -38,7 +38,7 @@ async function getCart(req, res) {
     }
     res.status(200).send(cart)
   } catch (e) {
-    res.status(400).send({ error: 'Error retrieving cart' })
+    res.status(500).send({ error: 'Error retrieving cart' })
   }
 }
 
@@ -50,7 +50,7 @@ async function removeCart(req, res) {
     }
     res.status(204).send()
   } catch (e) {
-    res.status(400).send({ error: 'Error deleting cart' })
+    res.status(500).send({ error: 'Error deleting cart' })
   }
 }
 
@@ -73,7 +73,7 @@ async function getCartItems(req, res) {
     }
     res.status(200).send(cart.items)
   } catch (e) {
-    res.status(400).send({ error: 'Error retrieving cart items' })
+    res.status(500).send({ error: 'Error retrieving cart items' })
   }
 }
 
@@ -114,7 +114,7 @@ async function modifyCartItem(req, res) {
       res.status(200).send(cart.items)
     }
   } catch (e) {
-    res.status(400).send({ error: 'Error retrieving cart' })
+    res.status(500).send({ error: 'Error modifying cart item' })
   }
 }
 

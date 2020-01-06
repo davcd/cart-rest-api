@@ -63,7 +63,7 @@ describe('Validate cart', () => {
   })
 
   test('Non existing cart', async () => {
-    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.validateCartCode, true)
+    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.validateCartCode, 400, true)
   })
 })
 
@@ -84,7 +84,7 @@ describe('Get cart', () => {
   })
 
   test('Non existing cart', async () => {
-    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.getCart, false)
+    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.getCart, 500, false)
   })
 })
 
@@ -102,7 +102,7 @@ describe('Remove cart', () => {
     expect(res.send).toHaveBeenCalledWith()
   })
   test('Non existing cart', async () => {
-    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.removeCart, false)
+    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.removeCart, 500, false)
   })
 })
 
@@ -139,7 +139,7 @@ describe('Get cart items', () => {
   })
 
   test('Non existing cart', async () => {
-    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.getCartItems, false)
+    Generic.controllerFunctionParametersError('cart_code', resMock, CartController.getCartItems, 500, false)
   })
 })
 

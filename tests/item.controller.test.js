@@ -49,7 +49,7 @@ describe('Validate item', () => {
   })
 
   test('Non existing item', async () => {
-    Generic.controllerFunctionParametersError('item_code', resMock, ItemController.validateItemCode, true)
+    Generic.controllerFunctionParametersError('item_code', resMock, ItemController.validateItemCode, 400, true)
   })
 })
 
@@ -70,6 +70,6 @@ describe('Get item', () => {
   })
 
   test('Non existing item', async () => {
-    Generic.controllerFunctionParametersError('item_code', resMock, ItemController.getItem, false)
+    Generic.controllerFunctionParametersError('item_code', resMock, ItemController.getItem, 500, false)
   })
 })
