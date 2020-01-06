@@ -2,7 +2,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server')
 
 const Generic = require('./generic')
 
-const mongoose = require('../services/mongoose')
+const mongooseService = require('../services/mongoose')
 
 const CartModel = require('../models/cart')
 const ItemModel = require('../models/item')
@@ -21,13 +21,13 @@ const resMock = () => {
 const nextMock = () => jest.fn()
 
 beforeAll(async () => {
-  await mongoose.connectTest(MongoMemoryServer)
+  mongooseService.connect(await new MongoMemoryServer().getUri(), mongooseService.cTestOptions)
 })
 
 afterAll(async () => {
   await CartModel.Cart.deleteMany()
   await ItemModel.Item.deleteMany()
-  mongoose.mongoose.disconnect()
+  mongooseService.disconnect()
 })
 
 async function generateCartWithItem(quantity) {
@@ -175,7 +175,7 @@ describe('Validate cart item meta', () => {
 
   test('Non valid meta', async () => {
     const req = {
-      query: { quantity: 'text' }
+      query: { quantity: new Generic.LoremIpsum().generateWords(1) }
     }
     const res = resMock()
     const next = nextMock()

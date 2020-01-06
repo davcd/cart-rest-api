@@ -1,17 +1,17 @@
 const { MongoMemoryServer } = require('mongodb-memory-server')
 
 const Generic = require('./generic')
-const mongoose = require('../services/mongoose')
+const mongooseService = require('../services/mongoose')
 
 const ItemModel = require('../models/item')
 
 beforeAll(async () => {
-  await mongoose.connectTest(MongoMemoryServer)
+  mongooseService.connect(await new MongoMemoryServer().getUri(), mongooseService.cTestOptions)
 })
 
 afterAll(async () => {
   await ItemModel.Item.deleteMany()
-  mongoose.mongoose.disconnect()
+  mongooseService.disconnect()
 })
 
 test('Create item', async () => {

@@ -469,6 +469,7 @@ if (quantity is positive){
 ### Limitations
 
 - There is not any security implemented. JWT Auth (or similar solutions) is required on real-world environments.
+- API is only configured on HTTP requests.
 - The is no stock limit for any item.
 - For a reald-world cart there must be more considerations than `quantity` (e.g. sizes, colors, discounts) and thus API should handle them.
 - For a real-world app, there is no need of creating empty carts. Carts should be created when user adds an item and not before. For this reason call two endpoints ( _POST_ **/cart/** and _POST_ **/cart/items/** ) for perform this operation is not the best approach.
@@ -482,5 +483,6 @@ if (quantity is positive){
 - ~~Tests cases completion~~
 - ~~Tests code refactor~~
 - ~~MongoDB Memory Server configuration for testing~~
-- End to end testing ( _Swagger_ or _[newman](https://github.com/postmanlabs/newman)_ )
+- ~~End to end testing with [supertest](https://github.com/visionmedia/supertest)~~
+- Implement _Swagger_
 - Adapt to cloud serverless architecture

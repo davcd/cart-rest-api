@@ -6,14 +6,14 @@ const { LoremIpsum } = require('lorem-ipsum')
 function checkCart(result, cart, item, quantity) {
   if (cart !== null) {
     expect(result).toHaveProperty('cart_code', cart.cart_code)
-    expect(result).toHaveProperty('date', cart.date)
+    expect(new Date(result.date)).toStrictEqual(cart.date)
   }
 
   expect(result).toHaveProperty('items')
 
   if (item !== null) {
     expect(result).toHaveProperty(['items', 0, 'item', 'item_code'], item.item_code)
-    expect(result).toHaveProperty(['items', 0, 'item', 'date'], item.date)
+    expect(new Date(result.items[0].item.date)).toStrictEqual(item.date)
     expect(result).toHaveProperty(['items', 0, 'item', 'name'], item.name)
     expect(result).toHaveProperty(['items', 0, 'item', 'description'], item.description)
     expect(result).toHaveProperty(['items', 0, 'item', 'image'], item.image)
@@ -31,7 +31,7 @@ function checkCart(result, cart, item, quantity) {
 
 function checkItem(result, item) {
   expect(result).toHaveProperty('item_code', item.item_code)
-  expect(result).toHaveProperty('date', item.date)
+  expect(new Date(result.date)).toStrictEqual(item.date)
   expect(result).toHaveProperty('name', item.name)
   expect(result).toHaveProperty('description', item.description)
   expect(result).toHaveProperty('image', item.image)
@@ -75,5 +75,8 @@ module.exports = {
   checkCart,
   checkItem,
   modelFunctionParameterErrorExpect,
-  controllerFunctionParametersError
+  controllerFunctionParametersError,
+
+  uuidv4,
+  LoremIpsum
 }
