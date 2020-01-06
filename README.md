@@ -485,4 +485,5 @@ if (quantity is positive){
 - ~~MongoDB Memory Server configuration for testing~~
 - ~~End to end testing with [supertest](https://github.com/visionmedia/supertest)~~
 - Implement _Swagger_
+- Integration testing for CI
 - Adapt to cloud serverless architecture
