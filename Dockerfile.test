@@ -1,4 +1,6 @@
-FROM node:13-alpine
+FROM node:13-stretch
+
+# Mongo Memory Server is not compatible with alpine
 
 RUN mkdir -p /usr/src/app
 
@@ -6,12 +8,8 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /wait
-
-RUN chmod +x /wait
-
 EXPOSE 3600
 
 RUN npm install
 
-CMD /wait && npm run test
+CMD npm run test

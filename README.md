@@ -481,6 +481,6 @@ if (quantity is positive){
 - ~~App code refactor~~
 - ~~Tests cases completion~~
 - ~~Tests code refactor~~
-- MongoDB memory server configuration for testing
+- ~~MongoDB Memory Server configuration for testing~~
 - End to end testing ( _Swagger_ or _[newman](https://github.com/postmanlabs/newman)_ )
 - Adapt to cloud serverless architecture

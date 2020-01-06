@@ -29,13 +29,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.test
-    networks:
-      - backend
-    environment:
-      WAIT_HOSTS: mongo:27017
-      WAIT_HOSTS_TIMEOUT: 120
-      WAIT_BEFORE_HOSTS: 10
-      WAIT_SLEEP_INTERVAL: 6
 networks:
   backend:
     driver: bridge

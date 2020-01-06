@@ -1,3 +1,5 @@
+const { MongoMemoryServer } = require('mongodb-memory-server')
+
 const Generic = require('./generic')
 
 const mongoose = require('../services/mongoose')
@@ -18,8 +20,8 @@ const resMock = () => {
 
 const nextMock = () => jest.fn()
 
-beforeAll(() => {
-  mongoose.connect()
+beforeAll(async () => {
+  await mongoose.connectTest(MongoMemoryServer)
 })
 
 afterAll(async () => {
