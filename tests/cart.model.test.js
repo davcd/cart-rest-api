@@ -1,4 +1,4 @@
-const uuidv4 = require('uuid/v4')
+const Generic = require('./generic')
 const mongoose = require('../services/mongoose')
 
 const CartModel = require('../models/cart')
@@ -16,135 +16,86 @@ afterAll(async () => {
 
 test('Create cart', async () => {
   const cart = await CartModel.createCart()
-  expect(cart).toHaveProperty('_id')
-  expect(cart).toHaveProperty('cart_code')
-  expect(cart).toHaveProperty('date')
-  expect(cart).toHaveProperty('items')
+
+  expect(cart).toHaveProperty('cart_code', cart.cart_code)
+
+  const res = await CartModel.existsCartByCode(cart.cart_code)
+
+  expect(res).toBe(true)
 })
 
 describe('Check cart exists by code', () => {
-  test('Existing code', async () => {
+  test('Existing cart_code', async () => {
     const cart = await CartModel.createCart()
     const res = await CartModel.existsCartByCode(cart.cart_code)
+
     expect(res).toBe(true)
   })
-  test('Non existing code', async () => {
-    const res = await CartModel.existsCartByCode(uuidv4())
-    expect(res).toBe(false)
+  test('Non existing cart_code', async () => {
+    await Generic.modelFunctionParameterErrorExpect(CartModel.existsCartByCode, false)
   })
 })
 describe('Get cart by code', () => {
-  test('Existing code', async () => {
+  test('Existing cart_code', async () => {
     const cart = await CartModel.createCart()
     const res = await CartModel.getCartByCode(cart.cart_code)
-    expect(res).toHaveProperty('_id')
-    expect(res).toHaveProperty('cart_code')
-    expect(res).toHaveProperty('date')
-    expect(res).toHaveProperty('items')
+
+    Generic.checkCart(res, cart, null, null)
   })
 
-  test('Non existing code', async () => {
-    const cart = await CartModel.getCartByCode(uuidv4())
-    expect(cart).toBe(null)
+  test('Non existing cart_code', async () => {
+    await Generic.modelFunctionParameterErrorExpect(CartModel.getCartByCode, null)
   })
 })
 
-describe('Get cart by id', () => {
-  test('Existing id', async () => {
-    const cart = await CartModel.createCart()
-    const res = await CartModel.getCartById(cart._id)
-    expect(res).toHaveProperty('_id')
-    expect(res).toHaveProperty('cart_code')
-    expect(res).toHaveProperty('date')
-    expect(res).toHaveProperty('items')
-  })
-
-  test('Existing id with item populates', async () => {
-    const cart = await CartModel.createCart()
-    const item = await ItemModel.createItem()
-    const quantity = Math.ceil(Math.random() * 10)
-    await CartModel.addCartItem(cart._id, item._id, { quantity })
-    const res = await CartModel.getCartById(cart._id)
-    expect(res).toHaveProperty('_id')
-    expect(res).toHaveProperty('cart_code')
-    expect(res).toHaveProperty('date')
-    expect(res).toHaveProperty('items')
-    expect(res).toHaveProperty(['items', 0, 'item', '_id'], item._id)
-    expect(res).toHaveProperty(['items', 0, 'item', 'item_code'], item.item_code)
-    expect(res).toHaveProperty(['items', 0, 'item', 'date'], item.date)
-    expect(res).toHaveProperty(['items', 0, 'item', 'name'], item.name)
-    expect(res).toHaveProperty(['items', 0, 'item', 'description'], item.description)
-    expect(res).toHaveProperty(['items', 0, 'item', 'image'], item.image)
-    expect(res).toHaveProperty(['items', 0, 'meta', 'quantity'], quantity)
-  })
-
-  test('Non existing id', async () => {
-    const cart = await CartModel.getCartById(mongoose.mongoose.Types.ObjectId())
-    expect(cart).toBe(null)
-  })
-})
-
-test('Remove cart by Id', async () => {
+test('Remove cart by code', async () => {
   const cart = await CartModel.createCart()
-  await CartModel.removeCartById(cart._id)
-  const res = await CartModel.existsCartByCode(cart.cart_code)
-  expect(res).toBe(false)
+  const resPre = await CartModel.existsCartByCode(cart.cart_code)
+
+  expect(resPre).toBe(true)
+
+  await CartModel.removeCartByCode(cart.cart_code)
+  const resPost = await CartModel.existsCartByCode(cart.cart_code)
+
+  expect(resPost).toBe(false)
 })
 
 test('Add cart item', async () => {
   const cart = await CartModel.createCart()
   const item = await ItemModel.createItem()
   const quantity = Math.ceil(Math.random() * 10)
-  await CartModel.addCartItem(cart._id, item._id, { quantity })
+  await CartModel.addCartItem(cart.cart_code, item.item_code, { quantity })
   const res = await CartModel.getCartByCode(cart.cart_code)
-  expect(res).toHaveProperty('_id')
-  expect(res).toHaveProperty('cart_code')
-  expect(res).toHaveProperty('date')
-  expect(res).toHaveProperty('items')
-  expect(res).toHaveProperty(['items', 0, 'item'], item._id)
-  expect(res).toHaveProperty(['items', 0, 'meta', 'quantity'], quantity)
+
+  Generic.checkCart(res, cart, item, quantity)
 })
 
 test('Update cart item', async () => {
   const cart = await CartModel.createCart()
   const item = await ItemModel.createItem()
   const quantity = Math.ceil(Math.random() * 10)
-  await CartModel.addCartItem(cart._id, item._id, { quantity })
+  await CartModel.addCartItem(cart.cart_code, item.item_code, { quantity })
   const add = await CartModel.getCartByCode(cart.cart_code)
-  expect(add).toHaveProperty('_id')
-  expect(add).toHaveProperty('cart_code')
-  expect(add).toHaveProperty('date')
-  expect(add).toHaveProperty('items')
-  expect(add).toHaveProperty(['items', 0, 'item'], item._id)
-  expect(add).toHaveProperty(['items', 0, 'meta', 'quantity'], quantity)
-  await CartModel.updateCartItem(cart._id, item._id, { quantity: quantity + 1 })
+
+  Generic.checkCart(add, cart, item, quantity)
+
+  await CartModel.updateCartItem(cart.cart_code, item.item_code, { quantity: quantity + 1 })
   const update = await CartModel.getCartByCode(cart.cart_code)
-  expect(update).toHaveProperty('_id')
-  expect(update).toHaveProperty('cart_code')
-  expect(update).toHaveProperty('date')
-  expect(update).toHaveProperty('items')
-  expect(update).toHaveProperty(['items', 0, 'item'], item._id)
-  expect(update).toHaveProperty(['items', 0, 'meta', 'quantity'], quantity + 1)
+
+  Generic.checkCart(update, cart, item, quantity + 1)
 })
 
 test('Remove cart items', async () => {
   const cart = await CartModel.createCart()
   const item = await ItemModel.createItem()
   const quantity = Math.ceil(Math.random() * 10)
-  await CartModel.addCartItem(cart._id, item._id, { quantity })
+  await CartModel.addCartItem(cart.cart_code, item.item_code, { quantity })
   const add = await CartModel.getCartByCode(cart.cart_code)
-  expect(add).toHaveProperty('_id')
-  expect(add).toHaveProperty('cart_code')
-  expect(add).toHaveProperty('date')
-  expect(add).toHaveProperty('items')
-  expect(add).toHaveProperty(['items', 0, 'item'], item._id)
-  expect(add).toHaveProperty(['items', 0, 'meta', 'quantity'], quantity)
-  await CartModel.removeCartItem(cart._id, item._id)
+
+  Generic.checkCart(add, cart, item, quantity)
+
+  await CartModel.removeCartItem(cart.cart_code, item.item_code)
   const remove = await CartModel.getCartByCode(cart.cart_code)
-  expect(remove).toHaveProperty('_id')
-  expect(remove).toHaveProperty('cart_code')
-  expect(remove).toHaveProperty('date')
-  expect(remove).toHaveProperty('items')
-  expect(remove).not.toHaveProperty(['items', 0, 'item'])
-  expect(remove).not.toHaveProperty(['items', 0, 'meta', 'quantity'])
+
+  Generic.checkCart(remove, cart, null, null)
 })

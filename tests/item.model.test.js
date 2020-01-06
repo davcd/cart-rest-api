@@ -1,5 +1,4 @@
-const uuidv4 = require('uuid/v4')
-
+const Generic = require('./generic')
 const mongoose = require('../services/mongoose')
 
 const ItemModel = require('../models/item')
@@ -15,59 +14,36 @@ afterAll(async () => {
 
 test('Create item', async () => {
   const item = await ItemModel.createItem()
-  expect(item).toHaveProperty('_id')
-  expect(item).toHaveProperty('item_code')
-  expect(item).toHaveProperty('date')
-  expect(item).toHaveProperty('name')
-  expect(item).toHaveProperty('description')
-  expect(item).toHaveProperty('image')
+
+  expect(item).toHaveProperty('item_code', item.item_code)
+
+  const res = await ItemModel.existsItemByCode(item.item_code)
+
+  expect(res).toBe(true)
 })
 
 describe('Check item exists by code', () => {
-  test('Existing code', async () => {
+  test('Existing item_code', async () => {
     const item = await ItemModel.createItem()
     const res = await ItemModel.existsItemByCode(item.item_code)
+
     expect(res).toBe(true)
   })
 
-  test('Non existing code', async () => {
-    const res = await ItemModel.existsItemByCode(uuidv4())
-    expect(res).toBe(false)
+  test('Non existing item_code', async () => {
+    await Generic.modelFunctionParameterErrorExpect(ItemModel.existsItemByCode, false)
   })
 })
 
 describe('Get item by code', () => {
-  test('Existing code', async () => {
+  test('Existing item_code', async () => {
     const item = await ItemModel.createItem()
     const res = await ItemModel.getItemByCode(item.item_code)
-    expect(res).toHaveProperty('_id')
-    expect(res).toHaveProperty('item_code')
-    expect(res).toHaveProperty('date')
-    expect(res).toHaveProperty('name')
-    expect(res).toHaveProperty('description')
-    expect(res).toHaveProperty('image')
+
+    Generic.checkItem(res, item)
   })
 
-  test('Non existing code', async () => {
-    const res = await ItemModel.getItemByCode(uuidv4())
-    expect(res).toBe(null)
-  })
-})
-
-describe('Get item by id', () => {
-  test('Existing id', async () => {
-    const item = await ItemModel.createItem()
-    const res = await ItemModel.getItemById(item._id)
-    expect(res).toHaveProperty('_id')
-    expect(res).toHaveProperty('item_code')
-    expect(res).toHaveProperty('date')
-    expect(res).toHaveProperty('name')
-    expect(res).toHaveProperty('description')
-    expect(res).toHaveProperty('image')
-  })
-
-  test('Non existing id', async () => {
-    const res = await ItemModel.getItemById(mongoose.mongoose.Types.ObjectId())
-    expect(res).toBe(null)
+  test('Non existing item_code', async () => {
+    await Generic.modelFunctionParameterErrorExpect(ItemModel.getItemByCode, null)
   })
 })

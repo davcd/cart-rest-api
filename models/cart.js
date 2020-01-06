@@ -46,15 +46,17 @@ function getCartByCode(cart_code) {
     .populate('items.item.data', '-_id')
     .lean()
     .then(result => {
-      result.items.forEach(res => {
-        const item = res
-        if (item.item.data !== undefined && item.item.data !== null) {
-          item.item = item.item.data
-        } else {
-          delete item.item.data
-        }
-        return item
-      })
+      if (result !== null) {
+        result.items.forEach(res => {
+          const item = res
+          if (item.item.data !== undefined && item.item.data !== null) {
+            item.item = item.item.data
+          } else {
+            delete item.item.data
+          }
+          return item
+        })
+      }
       return result
     })
 }
