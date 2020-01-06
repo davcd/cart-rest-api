@@ -74,6 +74,8 @@ When choosen the stack, I contemplated the option of using these others:
 
 For simplicity, every data passed to a endpoint will be allocated as params.
 
+> Note: Errors are shown with the following pattern `{ "error" : "Error message text" }`
+
 #### cart
 
 <details><summary markdown="span"><i>POST</i> <strong>/cart/</strong></summary>
@@ -96,11 +98,14 @@ No parameters
 {
     "cart_code": "4ca13090-a1b2-4741-b066-66c8d7a39f90"
 }
+
 ```
 
 | Code | Description          |
 | ---- | -------------------- |
 | 201  | Successful operation |
+|      |                      |
+| 500  | Error creating cart  |
 
 </details>
 <details><summary markdown="span"><i>GET</i>  <strong>/cart/</strong></summary>
@@ -121,9 +126,6 @@ Retrieves a cart
     "date": Date,
     "items": [
         {
-            "meta": {
-                "quantity": Number,
-            },
             "item": {
                 "item_code": String,
                 "date": Date,
@@ -131,6 +133,9 @@ Retrieves a cart
                 "description": String,
                 "image": String,
                 "price": Number
+            },
+            "meta": {
+                "quantity": Number,
             }
       	}
 	]
@@ -149,9 +154,6 @@ Retrieves a cart
     "date": "2019-12-31T00:14:02.213Z",
     "items": [
         {
-            "meta": {
-                "quantity": 2
-            },
             "item": {
                 "item_code": "3892211b-1d99-43d1-a4f8-a8a2255820f9",
                 "date": "2019-12-31T00:15:39.330Z",
@@ -159,6 +161,9 @@ Retrieves a cart
                 "description": "Voluptate et occaecat exercitation Lorem ex do quis laboris.",
                 "image": "est.jpg",
                 "price": 260.67
+            },
+            "meta": {
+                "quantity": 2
             }
         }
     ]
@@ -166,10 +171,13 @@ Retrieves a cart
 
 ```
 
-| Code | Description          |
-| ---- | -------------------- |
-| 200  | Successful operation |
-| 400  | Incorrect parameters |
+| Code | Description           |
+| ---- | --------------------- |
+| 200  | Successful operation  |
+|      |                       |
+| 400  | Incorrect cart_code   |
+| 404  | Cart not found        |
+| 500  | Error retrieving cart |
 
 </details>
 <details><summary markdown="span"><i>DELETE</i>  <strong>/cart/</strong></summary>
@@ -189,7 +197,10 @@ No responses
 | Code | Description          |
 | ---- | -------------------- |
 | 204  | Successful operation |
-| 400  | Incorrect parameters |
+|      |                      |
+| 400  | Incorrect cart_code  |
+| 404  | Cart not found       |
+| 500  | Error deleting cart  |
 
 </details>
 
@@ -215,11 +226,14 @@ No parameters
 {
     "item_code": "290bcb1b-de37-40ed-a7ea-bcab78a84f7c"
 }
+
 ```
 
 | Code | Description          |
 | ---- | -------------------- |
 | 201  | Successful operation |
+|      |                      |
+| 500  | Error creating item  |
 
 </details>
 <details><summary markdown="span"><i>GET</i>  <strong>/item/</strong></summary>
@@ -257,10 +271,13 @@ Retrieves an item
 
 ```
 
-| Code | Description          |
-| ---- | -------------------- |
-| 200  | Successful operation |
-| 400  | Incorrect parameters |
+| Code | Description           |
+| ---- | --------------------- |
+| 200  | Successful operation  |
+|      |                       |
+| 400  | Incorrect item_code   |
+| 404  | Item not found        |
+| 500  | Error retrieving item |
 
 </details>
 
@@ -281,9 +298,6 @@ Retrieves list of items in cart
 ```javascript
 [
     {
-        "meta": {
-            "quantity": Number,
-        },
         "item": {
             "item_code": String,
             "date": Date,
@@ -291,6 +305,9 @@ Retrieves list of items in cart
             "description": String,
             "image": String,
             "price": Number
+        },
+        "meta": {
+            "quantity": Number,
         }
     }
 ]
@@ -302,9 +319,6 @@ Retrieves list of items in cart
 
 [
     {
-        "meta": {
-            "quantity": 2
-        },
         "item": {
             "item_code": "290bcb1b-de37-40ed-a7ea-bcab78a84f7c",
             "date": "2019-12-31T00:23:04.607Z",
@@ -312,12 +326,12 @@ Retrieves list of items in cart
             "description": "Est fugiat laborum eu mollit quis id.",
             "image": "aute.jpg",
             "price": 412.52
+        },
+        "meta": {
+            "quantity": 2
         }
     },
     {
-        "meta": {
-            "quantity": 2
-        },
         "item": {
             "item_code": "e2791720-2e01-4fc6-b6bb-5d381742474e",
             "date": "2019-12-31T00:31:47.452Z",
@@ -325,16 +339,22 @@ Retrieves list of items in cart
             "description": "Cupidatat et minim in exercitation proident ea quis reprehenderit nisi.",
             "image": "enim.jpg",
             "price": 728.94
+        },
+        "meta": {
+            "quantity": 2
         }
     }
 ]
 
 ```
 
-| Code | Description          |
-| ---- | -------------------- |
-| 200  | Successful operation |
-| 400  | Incorrect parameters |
+| Code | Description                 |
+| ---- | --------------------------- |
+| 204  | Successful operation        |
+|      |                             |
+| 400  | Incorrect cart_code         |
+| 404  | Cart not found              |
+| 500  | Error retrieving cart items |
 
 </details>
 <details><summary markdown="span"><i>POST</i>  <strong>/cart/items/</strong></summary>
@@ -362,20 +382,17 @@ if (quantity is positive){
 
 **Parameters**
 
-| Name      | Value  |
-| --------- | ------ |
-| cart_code | String |
-| item_code | String |
-| quantity  | Number |
+| Name                | Value  |
+| ------------------- | ------ |
+| cart_code           | String |
+| item_code           | String |
+| quantity (optional) | Number |
 
 **Responses**
 
 ```javascript
 [
     {
-        "meta": {
-            "quantity": Number,
-        },
         "item": {
             "item_code": String,
             "date": Date,
@@ -383,6 +400,9 @@ if (quantity is positive){
             "description": String,
             "image": String,
             "price": Number
+        },
+        "meta": {
+            "quantity": Number,
         }
     }
 ]
@@ -394,9 +414,6 @@ if (quantity is positive){
 
 [
     {
-        "meta": {
-            "quantity": 2
-        },
         "item": {
             "item_code": "290bcb1b-de37-40ed-a7ea-bcab78a84f7c",
             "date": "2019-12-31T00:23:04.607Z",
@@ -404,12 +421,12 @@ if (quantity is positive){
             "description": "Est fugiat laborum eu mollit quis id.",
             "image": "aute.jpg",
             "price": 412.52
+        },
+        "meta": {
+            "quantity": 2
         }
     },
     {
-        "meta": {
-            "quantity": 2
-        },
         "item": {
             "item_code": "e2791720-2e01-4fc6-b6bb-5d381742474e",
             "date": "2019-12-31T00:31:47.452Z",
@@ -417,16 +434,24 @@ if (quantity is positive){
             "description": "Cupidatat et minim in exercitation proident ea quis reprehenderit nisi.",
             "image": "enim.jpg",
             "price": 728.94
+        },
+        "meta": {
+            "quantity": 2
         }
     }
 ]
 
 ```
 
-| Code | Description          |
-| ---- | -------------------- |
-| 201  | Successful operation |
-| 400  | Incorrect parameters |
+| Code | Description               |
+| ---- | ------------------------- |
+| 200  | Successful operation      |
+|      |                           |
+| 400  | Incorrect cart_code       |
+| 404  | Cart not found            |
+| 400  | Incorrect item_code       |
+| 404  | Item not found            |
+| 500  | Error modifying cart item |
 
 </details>
 
